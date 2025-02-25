@@ -115,7 +115,7 @@ const milestonePlugin = (hook, vm) => {
   
       container.innerHTML = timelineHTML;
 
-      lastElement = document.getElementById(`last-item-${time_index}`);
+      const lastElement = document.getElementById(`last-item-${time_index}`);
   
       reverseLastEvent(lastElement);
       
