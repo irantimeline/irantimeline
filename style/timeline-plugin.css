@@ -49,7 +49,6 @@
     line-height: 1.5;
     border-bottom: 1px solid #000;
     min-height: 85px;
-    overflow: hidden;
 }
 
 .timeline-item-content .text {
