@@ -1,7 +1,7 @@
 window.$docsify = window.$docsify || {};
 window.$docsify.plugins = (window.$docsify.plugins || []).concat(function (hook) {
-  hook.beforeEach(function (content) {
-    return content.replace(/<a\s+href="([^"]+)"[^>]*>(wikipedia|ویکی‌پدیا)<\/a>/g, function (match, href, linkText) {
+  hook.afterEach(function (content) {
+    return content.replace(/<a\s+href="([^"]+)"[^>]*>(wikipedia|ویکی‌پدیا)<\/a>/g, function (match, href) {
       const pageTitle = decodeURIComponent(href.split('/').pop()).replace('_', ' ');
       return `
         <span class="wikipedia-preview-container">
@@ -9,7 +9,8 @@ window.$docsify.plugins = (window.$docsify.plugins || []).concat(function (hook)
             <img src="https://en.wikipedia.org/favicon.ico" alt="${pageTitle}" class="wikipedia-icon">
           </a>
           <span class="wikipedia-preview-box">
-            <iframe src="${href}" class="wikipedia-iframe"></iframe>
+            <span class="loading">بارگذاری ...</span>
+            <iframe src="${href}#bodyContent" class="wikipedia-iframe"></iframe>
           </span>
         </span>
       `;
