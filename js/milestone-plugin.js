@@ -73,7 +73,7 @@ const milestonePlugin = (hook, vm) => {
   
       // Reverse the array to match your original ordering
       timelineData.forEach((event, index) => {
-        const normalized = (event.time - min) / (max - min);
+        const normalized = ((event.time - min) / (max - min));
         const positionPercent = (1-(1 - normalized)) * 100;
   
         // Build the event's HTML
@@ -88,7 +88,10 @@ const milestonePlugin = (hook, vm) => {
             </div>
             <div class="milestone-item-content">
               <div class="milestone-year">${event.time}</div>
-              <div class="milestone-description">${marked(event.desc)}</div>
+              <div class="milestone-description">
+                <span class="milestone-title">${marked(event.desc)}</span>
+                <span class="milestone-border">${marked(event.desc)}</span>
+              </div>
             </div>
           </div>
         `;
@@ -153,14 +156,14 @@ const milestonePlugin = (hook, vm) => {
     for (let i = events.length - 1; i >= 0; i--) {
       const current = events[i];
       let currentRect = current.getBoundingClientRect();
-  
+
       if (i + 1 < events.length) {
         const nextEvent = events[i + 1];
         const nextRect = nextEvent.getBoundingClientRect();
   
         const horizontalOverlap = !(currentRect.left > nextRect.right || currentRect.right < nextRect.left);
         const verticalOverlap = !(currentRect.bottom < nextRect.top || currentRect.top > nextRect.bottom);
-  
+        
         if (horizontalOverlap && verticalOverlap) {
           
           let currentHeight = parseFloat(current.style.height) || adjustment;
@@ -173,6 +176,23 @@ const milestonePlugin = (hook, vm) => {
           currentRect = current.getBoundingClientRect();
         }
       }
+
+
+      let sizeOverlap = false;
+      const contentElement = current.querySelector('.milestone-item-content');
+      if (contentElement) {
+        const contentRect = contentElement.getBoundingClientRect();
+        sizeOverlap = (contentRect.height > 60) && contentRect.height;
+      }
+      if (sizeOverlap) {
+        current.style.height = (sizeOverlap + 20) + 'px';
+        if (istop) {
+          current.style.top = -(sizeOverlap + 20) + adjustment + 'px';
+        }
+        currentRect = current.getBoundingClientRect();
+      }
+      const height = current.getBoundingClientRect().height;
+      if (height > maxHeight) maxHeight = height;
     }
   
     // Second pass: Check for overlaps with previous events and apply 'reverse' class
@@ -192,31 +212,42 @@ const milestonePlugin = (hook, vm) => {
         
         if (horizontalOverlap) {
           current.classList.add('reverse');
-          current.style.right = `calc(${current.style.right} - ${currentRect.width}px)`
+          current.style.right = `calc(${current.style.right} - ${currentRect.width - 14}px)`
           
           let currentHeight = adjustment;
           current.style.height = currentHeight + 'px';
           if (istop) {
             current.style.top = -currentHeight + adjustment + 'px';
           }
-        } else if(currentRect.height > prevRect.height){
+        } else if(currentRect.height > prevRect.height || currentRect.height > preprevRect?.height){
           current.classList.add('reverse');
-          current.style.right = `calc(${current.style.right} - ${currentRect.width}px)`
+          current.style.right = `calc(${current.style.right} - ${currentRect.width - 14}px)`
           current.style.height = prevRect.height + adjustment + 'px';
           if (istop) {
             current.style.top = -prevRect.height  + 'px';
           }
         }
-  
-        if (currentRect.height > maxHeight) {
-          
-          maxHeight = currentRect.height;
-        }
       }
+
+      let sizeOverlap = false;
+      const contentElement = current.querySelector('.milestone-item-content');
+      if (contentElement) {
+        const contentRect = contentElement.getBoundingClientRect();
+        sizeOverlap = (contentRect.height > 60) && contentRect.height;
+      }
+      if (sizeOverlap) {
+        current.style.height = (sizeOverlap + 20) + 'px';
+        if (istop) {
+          current.style.top = -(sizeOverlap + 20) + adjustment + 'px';
+        }
+        currentRect = current.getBoundingClientRect();
+      }
+      const height = current.getBoundingClientRect().height;
+      if (height > maxHeight) maxHeight = height;
       
     }
     // Apply the height
-    container.closest('.milestone').style.height = (maxHeight+60) + "px";
+    container.closest('.milestone').style.height = (maxHeight)*2+ "px";
     maxHeight = 0;
   }
 
